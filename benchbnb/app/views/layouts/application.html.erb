@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Benchbnb</title>
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= javascript_include_tag "https://maps.googleapis.com/maps/api/js?key=AIzaSyAPjYkDq0-iiCd6W5-qCw46J-r0EW39L1U" %> 
+    <%= stylesheet_link_tag 'application', media: 'all' %> 
+    <%= csrf_meta_tags %>
+
+    <%= stylesheet_link_tag    'application', media: 'all' %>
+    <%= javascript_include_tag 'application' %>
+    <%if logged_in? %>
+      <script>
+        window.currentUser = { username: "<%=current_user().username%>", id: "<%=current_user().id%>"}
+      </script>
+    <%end%>
+  </head>
+
+  <body>
+    <%= yield %>
+  </body>
+</html>
