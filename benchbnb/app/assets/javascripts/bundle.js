@@ -117,9 +117,9 @@ var receiveBench = function receiveBench(bench) {
     bench: bench
   };
 };
-var fetchBenches = function fetchBenches(bounds) {
+var fetchBenches = function fetchBenches(bounds, minSeat, maxSeat) {
   return function (dispatch) {
-    return Object(_util_bench_api_util__WEBPACK_IMPORTED_MODULE_0__["fetchBenches"])(bounds.northEast, bounds.southWest).then(function (benches) {
+    return Object(_util_bench_api_util__WEBPACK_IMPORTED_MODULE_0__["fetchBenches"])(bounds.northEast, bounds.southWest, minSeat, maxSeat).then(function (benches) {
       return dispatch(receiveBenches(benches));
     });
   };
@@ -141,19 +141,30 @@ window.createBench = createBench; //window.store.dispatch(fetchBenches()).then( 
 /*!********************************************!*\
   !*** ./frontend/actions/filter_actions.js ***!
   \********************************************/
-/*! exports provided: UPDATE_BOUNDS, updatingBounds, updateBounds */
+/*! exports provided: UPDATE_BOUNDS, UPDATE_FILTER, updateFilter, updatingBounds, updateBounds, updateFilterAction */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "UPDATE_BOUNDS", function() { return UPDATE_BOUNDS; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "UPDATE_FILTER", function() { return UPDATE_FILTER; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "updateFilter", function() { return updateFilter; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "updatingBounds", function() { return updatingBounds; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "updateBounds", function() { return updateBounds; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "updateFilterAction", function() { return updateFilterAction; });
 /* harmony import */ var _util_bench_api_util__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util/bench_api_util */ "./frontend/util/bench_api_util.js");
 /* harmony import */ var _bench_actions__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./bench_actions */ "./frontend/actions/bench_actions.js");
 
 
 var UPDATE_BOUNDS = "UPDATE_BOUNDS";
+var UPDATE_FILTER = "UPDATE_FILTER";
+var updateFilter = function updateFilter(filter, value) {
+  return {
+    type: UPDATE_FILTER,
+    filter: filter,
+    value: value
+  };
+};
 var updatingBounds = function updatingBounds(bounds) {
   return {
     type: UPDATE_BOUNDS,
@@ -172,6 +183,13 @@ var updateBounds = function updateBounds(bounds) {
   return function (dispatch, getState) {
     dispatch(updatingBounds(bounds));
     return Object(_bench_actions__WEBPACK_IMPORTED_MODULE_1__["fetchBenches"])(getState().ui.filter.bounds)(dispatch);
+  };
+};
+var updateFilterAction = function updateFilterAction(type, value) {
+  return function (dispatch, getState) {
+    dispatch(updateFilter(type, value));
+    var state = getState();
+    return Object(_bench_actions__WEBPACK_IMPORTED_MODULE_1__["fetchBenches"])(state.ui.filter.bounds, state.ui.filter.minSeat, state.ui.filter.maxSeat)(dispatch);
   };
 };
 
@@ -339,7 +357,7 @@ window.login = _actions_session_actions__WEBPACK_IMPORTED_MODULE_3__["login"];
     exact: true,
     path: "/",
     component: _search_container__WEBPACK_IMPORTED_MODULE_8__["default"]
-  }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_router_dom__WEBPACK_IMPORTED_MODULE_4__["Route"], {
+  }), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_util_route_util__WEBPACK_IMPORTED_MODULE_7__["ProtectedRoute"], {
     exact: true,
     path: "/benches/new",
     component: _bench_form_container__WEBPACK_IMPORTED_MODULE_9__["default"]
@@ -656,7 +674,7 @@ function (_React$Component) {
       return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("ul", null, benches.map(function (bench) {
         return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("li", {
           key: bench.description
-        }, bench.description, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("ul", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("li", null, bench.lat), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("li", null, bench.lng)));
+        }, bench.description, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("ul", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("li", null, bench.lat), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("li", null, bench.lng), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("li", null, bench.seating)));
       }));
     }
   }]);
@@ -761,7 +779,8 @@ function (_React$Component) {
           }
         };
 
-        _this.props.updateBounds(tempBounds); // this.props.fetchBenches(tempBounds);
+        _this.props.updateFilterAction("bounds", tempBounds); // this.props.updateBounds(tempBounds);
+        // this.props.fetchBenches(tempBounds);
 
       });
       google.maps.event.addListener(this.map, 'click', function (e) {
@@ -799,6 +818,79 @@ function (_React$Component) {
 }(react__WEBPACK_IMPORTED_MODULE_0___default.a.Component);
 
 /* harmony default export */ __webpack_exports__["default"] = (Object(react_router_dom__WEBPACK_IMPORTED_MODULE_2__["withRouter"])(BenchMap));
+
+/***/ }),
+
+/***/ "./frontend/components/filter_form.jsx":
+/*!*********************************************!*\
+  !*** ./frontend/components/filter_form.jsx ***!
+  \*********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } return _assertThisInitialized(self); }
+
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); if (superClass) _setPrototypeOf(subClass, superClass); }
+
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf || function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+
+
+
+var FilterForm =
+/*#__PURE__*/
+function (_React$Component) {
+  _inherits(FilterForm, _React$Component);
+
+  function FilterForm(props) {
+    _classCallCheck(this, FilterForm);
+
+    return _possibleConstructorReturn(this, _getPrototypeOf(FilterForm).call(this, props));
+  }
+
+  _createClass(FilterForm, [{
+    key: "onChangeText",
+    value: function onChangeText(type) {
+      var _this = this;
+
+      return function (e) {
+        var value = e.target.value;
+
+        _this.props.updateFilterAction(type, value);
+      };
+    }
+  }, {
+    key: "render",
+    value: function render() {
+      return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("form", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", null, "Min Seat:", react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
+        type: "text",
+        onChange: this.onChangeText.bind(this)("minSeat")
+      })), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", null, "Max Seat:", react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
+        type: "text",
+        onChange: this.onChangeText.bind(this)("maxSeat")
+      })));
+    }
+  }]);
+
+  return FilterForm;
+}(react__WEBPACK_IMPORTED_MODULE_0___default.a.Component);
+
+/* harmony default export */ __webpack_exports__["default"] = (FilterForm);
 
 /***/ }),
 
@@ -943,12 +1035,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _bench_map__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./bench_map */ "./frontend/components/bench_map.jsx");
 /* harmony import */ var _bench_index__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./bench_index */ "./frontend/components/bench_index.jsx");
+/* harmony import */ var _filter_form__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./filter_form */ "./frontend/components/filter_form.jsx");
+
 
 
 
 
 var Search = function Search(props) {
-  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_bench_map__WEBPACK_IMPORTED_MODULE_1__["default"], props), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_bench_index__WEBPACK_IMPORTED_MODULE_2__["default"], props));
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_bench_map__WEBPACK_IMPORTED_MODULE_1__["default"], props), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_bench_index__WEBPACK_IMPORTED_MODULE_2__["default"], props), react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_filter_form__WEBPACK_IMPORTED_MODULE_3__["default"], props));
 };
 
 /* harmony default export */ __webpack_exports__["default"] = (Search);
@@ -990,6 +1084,9 @@ var mapDispatchToProps = function mapDispatchToProps(dispatch) {
     },
     updateBounds: function updateBounds(bounds) {
       dispatch(Object(_actions_filter_actions__WEBPACK_IMPORTED_MODULE_4__["updateBounds"])(bounds));
+    },
+    updateFilterAction: function updateFilterAction(bounds, minSeat, maxSeat) {
+      dispatch(Object(_actions_filter_actions__WEBPACK_IMPORTED_MODULE_4__["updateFilterAction"])(bounds, minSeat, maxSeat));
     } // fetchBenches: (bounds) => { dispatch(updateBounds(bounds))}    
 
   };
@@ -1232,6 +1329,15 @@ var filterReducer = function filterReducer() {
       newState["bounds"] = action.bounds;
       return newState;
 
+    case _actions_filter_actions__WEBPACK_IMPORTED_MODULE_0__["UPDATE_FILTER"]:
+      var filter = action.filter;
+      var value = action.value;
+      newState[filter] = value; // newState["bounds"] = action.filter;
+      // newState["minSeat"] = action.minSeat;
+      // newState["maxSeat"] = action.maxSeat;
+
+      return newState;
+
     default:
       return newState;
   }
@@ -1435,7 +1541,7 @@ function configureStore() {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "fetchBenches", function() { return fetchBenches; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createBench", function() { return createBench; });
-var fetchBenches = function fetchBenches(northEast, southWest) {
+var fetchBenches = function fetchBenches(northEast, southWest, minSeat, maxSeat) {
   if (!northEast) {
     northEast = {
       lat: 37.828805,
@@ -1456,7 +1562,9 @@ var fetchBenches = function fetchBenches(northEast, southWest) {
     data: {
       bounds: {
         northEast: northEast,
-        southWest: southWest // northEast: {
+        southWest: southWest,
+        minSeat: minSeat,
+        maxSeat: maxSeat // northEast: {
         //   lat: 37.828805, 
         //   lng: - 122.404218 
         // },
@@ -1555,12 +1663,13 @@ function () {
 /*!**************************************!*\
   !*** ./frontend/util/route_util.jsx ***!
   \**************************************/
-/*! exports provided: AuthRoute */
+/*! exports provided: AuthRoute, ProtectedRoute */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "AuthRoute", function() { return AuthRoute; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ProtectedRoute", function() { return ProtectedRoute; });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
@@ -1589,7 +1698,22 @@ var Auth = function Auth(_ref) {
   });
 };
 
+var Protected = function Protected(_ref2) {
+  var loggedIn = _ref2.loggedIn,
+      path = _ref2.path,
+      Component = _ref2.component;
+  return react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_router_dom__WEBPACK_IMPORTED_MODULE_2__["Route"], {
+    path: path,
+    render: function render(props) {
+      return loggedIn ? react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(Component, props) : react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_router_dom__WEBPACK_IMPORTED_MODULE_2__["Redirect"], {
+        to: "/login"
+      });
+    }
+  });
+};
+
 var AuthRoute = Object(react_router_dom__WEBPACK_IMPORTED_MODULE_2__["withRouter"])(Object(react_redux__WEBPACK_IMPORTED_MODULE_1__["connect"])(mapStateToProps)(Auth));
+var ProtectedRoute = Object(react_router_dom__WEBPACK_IMPORTED_MODULE_2__["withRouter"])(Object(react_redux__WEBPACK_IMPORTED_MODULE_1__["connect"])(mapStateToProps)(Protected));
 
 /***/ }),
 

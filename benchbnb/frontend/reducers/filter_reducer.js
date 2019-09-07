@@ -1,4 +1,4 @@
-import { UPDATE_BOUNDS } from '../actions/filter_actions'
+import { UPDATE_BOUNDS, UPDATE_FILTER } from '../actions/filter_actions'
 
 const filterReducer = (state = { }, action) =>{
   Object.freeze(state);
@@ -8,6 +8,17 @@ const filterReducer = (state = { }, action) =>{
       console.log("UPDATE");
       newState["bounds"] = action.bounds;
 
+      return newState;
+
+
+    case UPDATE_FILTER:
+      let filter = action.filter;
+      let value = action.value;
+      newState[filter] = value;
+
+      // newState["bounds"] = action.filter;
+      // newState["minSeat"] = action.minSeat;
+      // newState["maxSeat"] = action.maxSeat;
       return newState;
     default:
       return newState;

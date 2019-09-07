@@ -2,7 +2,7 @@ import React from "react";
 import { connect } from "react-redux";
 import Search from "./search";
 import { fetchBenches } from "../actions/bench_actions";
-import { updateBounds } from "../actions/filter_actions";
+import { updateBounds, updateFilterAction } from "../actions/filter_actions";
 
 const mapStateToProps = (state) => {
 
@@ -15,7 +15,8 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     fetchBenches: (bounds) => { dispatch(fetchBenches(bounds)) },
-    updateBounds: (bounds) => { dispatch(updateBounds(bounds)) }
+    updateBounds: (bounds) => { dispatch(updateBounds(bounds)) },
+    updateFilterAction: (bounds, minSeat, maxSeat) => {dispatch(updateFilterAction(bounds, minSeat, maxSeat))}
     // fetchBenches: (bounds) => { dispatch(updateBounds(bounds))}    
   };
 };

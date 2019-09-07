@@ -17,9 +17,9 @@ export const receiveBench = (bench) => {
   };
 };
 
-export const fetchBenches = (bounds) => {
+export const fetchBenches = (bounds, minSeat, maxSeat) => {
   return (dispatch) => {
-    return getBenches(bounds.northEast, bounds.southWest).then(benches => {
+    return getBenches(bounds.northEast, bounds.southWest, minSeat, maxSeat).then(benches => {
       return dispatch(receiveBenches(benches));
     });
   };

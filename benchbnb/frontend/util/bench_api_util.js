@@ -1,4 +1,4 @@
-export const fetchBenches = (northEast , southWest ) => {
+export const fetchBenches = (northEast , southWest, minSeat, maxSeat ) => {
   if (!northEast){
     northEast = { lat: 37.828805, lng: - 122.404218 };
   }
@@ -11,7 +11,9 @@ export const fetchBenches = (northEast , southWest ) => {
     data: {
       bounds: {
         northEast: northEast,
-        southWest: southWest
+        southWest: southWest,
+        minSeat: minSeat,
+        maxSeat: maxSeat
         // northEast: {
         //   lat: 37.828805, 
         //   lng: - 122.404218 

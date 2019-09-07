@@ -2,6 +2,13 @@ import { fetchBenches as getBenches} from "../util/bench_api_util";
 import {fetchBenches} from "./bench_actions";
 
 export const UPDATE_BOUNDS = "UPDATE_BOUNDS";
+export const UPDATE_FILTER = "UPDATE_FILTER";
+
+export const updateFilter = (filter, value) => ({
+  type: UPDATE_FILTER,
+  filter,
+  value
+});
 
 export const updatingBounds = (bounds) => {
   return {
@@ -24,4 +31,12 @@ export const updateBounds = (bounds) => {
     dispatch(updatingBounds(bounds));
     return fetchBenches(getState().ui.filter.bounds)(dispatch);
   };
+};
+
+export const updateFilterAction = (type, value) => {
+  return (dispatch, getState) => {
+    dispatch(updateFilter(type, value));
+    let state = getState();
+    return fetchBenches(state.ui.filter.bounds, state.ui.filter.minSeat, state.ui.filter.maxSeat)(dispatch);
+  }
 };

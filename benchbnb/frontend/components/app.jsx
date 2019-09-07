@@ -5,7 +5,7 @@ import {login} from '../actions/session_actions';
 import {Route, Switch} from 'react-router-dom';
 import LoginFormContainer from './login_form_container';
 import SignupFormContainer from './signup_form_container';
-import { AuthRoute } from "../util/route_util";
+import { AuthRoute, ProtectedRoute } from "../util/route_util";
 import SearchContainer from './search_container';
 import BenchFromContainer from "./bench_form_container";
 
@@ -23,7 +23,7 @@ export default function(props){
         </Switch>
         {/* <Route exact path="/" component={BenchIndexContainer} /> */}
         <Route exact path="/" component={SearchContainer} />
-        <Route exact path="/benches/new" component={BenchFromContainer} />
+        <ProtectedRoute exact path="/benches/new" component={BenchFromContainer} />
       </header>
     </div>
   )

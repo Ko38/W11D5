@@ -17,6 +17,7 @@ class BenchIndexItem extends React.Component {
               <ul>
                 <li>{bench.lat}</li>
                 <li>{bench.lng}</li>
+                <li>{bench.seating}</li>
               </ul>
             </li>
           );
